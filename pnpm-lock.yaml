@@ -68,9 +68,6 @@ dependencies:
   dotenv:
     specifier: ^16.3.1
     version: 16.3.1
-  duration:
-    specifier: link:dayjs/plugin/duration
-    version: link:dayjs/plugin/duration
   express:
     specifier: ^4.18.2
     version: 4.18.2
