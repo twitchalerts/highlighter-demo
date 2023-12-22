@@ -67,6 +67,6 @@ app.post('/upload', async (req, res) => {
 
 const PORT = process.env.FILE_UPLOADER_PORT || 3001;
 
-app.listen(PORT, () => {
+app.listen(PORT, '0.0.0.0', () => {
     console.log(`Uploader listening on port ${PORT}`);
 });

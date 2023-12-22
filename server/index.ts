@@ -38,4 +38,4 @@ const server = createHTTPServer({
 
 const PORT = process.env.SERVER_PORT || 3000;
 console.log(`Listening trpc on port ${PORT}`);
-server.listen(PORT);
+server.listen(PORT, '0.0.0.0');
