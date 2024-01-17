@@ -2,11 +2,15 @@ import type { AppRouter } from '../server';
 import { createTRPCProxyClient, httpBatchLink } from '@trpc/client';
 import { createSWRProxyHooks } from "@trpc-swr/client";
 
+const url = import.meta.env.VITE_API_URL as string;
+
+if (!url) {
+  throw new Error('Missing env VITE_API_URL');
+}
+
 const config = {
   links: [
-    httpBatchLink({
-      url: 'http://localhost:3000',
-    }),
+    httpBatchLink({ url }),
   ],
 }
 

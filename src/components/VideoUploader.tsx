@@ -3,6 +3,12 @@ import React, { useState } from 'react';
 import axios from 'axios';
 import { sleep } from '../utils/sleep';
 
+const uploadServerUrl = import.meta.env.VITE_UPLOAD_URL as string;
+
+if (!uploadServerUrl) {
+  throw new Error('Missing env VITE_UPLOAD_URL');
+}
+
 const VideoUploader: React.FC = () => {
   const [file, setFile] = useState<File | null>(null);
   const [uploadStatus, setUploadStatus] = useState<'none' | 'pending' | 'done' | 'error'>('none');
@@ -21,7 +27,7 @@ const VideoUploader: React.FC = () => {
       formData.append('file', file);
 
       try {
-        const response = await axios.post('http://localhost:3001/upload', formData, {
+        const response = await axios.post(`${uploadServerUrl}/upload`, formData, {
           headers: {
             'Content-Type': 'multipart/form-data'
           }
