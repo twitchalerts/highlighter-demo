@@ -12,13 +12,13 @@ app.use(cors());
 
 // Middleware for file upload
 app.use(fileUpload({
-    limits: { fileSize: 3 * 1024 * 1024 * 1024 }, // 3GB limit or adjust as needed
+    limits: { fileSize: 4 * 1024 * 1024 * 1024 }, // 4GB limit or adjust as needed
     useTempFiles: true,
     tempFileDir: '/tmp/',
 }));
 
 // Endpoint to upload files
-app.post('/upload', async (req, res) => {
+app.post('/uploader', async (req, res) => {
     if (!req.files || Object.keys(req.files).length === 0) {
         return res.status(400).send('No files were uploaded.');
     }
@@ -66,6 +66,7 @@ app.post('/upload', async (req, res) => {
 });
 
 const PORT = 3001;
+
 
 app.listen(PORT, '0.0.0.0', () => {
     console.log(`Uploader listening on port ${PORT}`);

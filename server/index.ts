@@ -1,12 +1,24 @@
 import { createHTTPServer } from '@trpc/server/adapters/standalone';
+import { initTRPC } from '@trpc/server';
+import * as trpcExpress from '@trpc/server/adapters/express';
 import { z } from 'zod';
 import { db } from './db';
 import { publicProcedure, router } from './trpc';
 import cors from 'cors';
+import express from 'express';
 
 import './helpers/file-uploader'
 
-const appRouter = router({
+// created for each request
+const createContext = ({
+  req,
+  res,
+}: trpcExpress.CreateExpressContextOptions) => ({}); // no context
+type Context = Awaited<ReturnType<typeof createContext>>;
+const t = initTRPC.context<Context>().create();
+
+
+const appRouter = t.router({
   videoList: publicProcedure.query(async () => {
     return await db.video.getList();
   }),
@@ -27,15 +39,31 @@ const appRouter = router({
     }),
 });
 
+const app = express();
+app.use(cors());
+
+app.use(
+  '/api',
+  trpcExpress.createExpressMiddleware({
+    router: appRouter,
+    createContext,
+  }),
+);
+
 // Export type router type signature,
 // NOT the router itself.
 export type AppRouter = typeof appRouter;
 
-const server = createHTTPServer({
-  router: appRouter,
-  middleware: cors()
-});
+// const server = createHTTPServer({
+//   router: appRouter,
+//   middleware: cors()
+// });
+
+
 
 const PORT = process.env.SERVER_PORT || 3000;
 console.log(`Listening trpc on port ${PORT}`);
-server.listen(PORT, '0.0.0.0');
+// server.listen(PORT, '0.0.0.0');
+app.listen(PORT, '0.0.0.0', () => {
+  console.log(`API listening on port ${PORT}`);
+});

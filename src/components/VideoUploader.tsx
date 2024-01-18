@@ -27,7 +27,7 @@ const VideoUploader: React.FC = () => {
       formData.append('file', file);
 
       try {
-        const response = await axios.post(`${uploadServerUrl}/upload`, formData, {
+        const response = await axios.post(`${uploadServerUrl}`, formData, {
           headers: {
             'Content-Type': 'multipart/form-data'
           }
