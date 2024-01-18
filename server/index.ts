@@ -54,16 +54,8 @@ app.use(
 // NOT the router itself.
 export type AppRouter = typeof appRouter;
 
-// const server = createHTTPServer({
-//   router: appRouter,
-//   middleware: cors()
-// });
-
-
-
 const PORT = process.env.SERVER_PORT || 3000;
-console.log(`Listening trpc on port ${PORT}`);
-// server.listen(PORT, '0.0.0.0');
+
 app.listen(PORT, '0.0.0.0', () => {
   console.log(`API listening on port ${PORT}`);
 });
