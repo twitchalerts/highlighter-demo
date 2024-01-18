@@ -8,6 +8,7 @@ import { useObjectWithActions } from "../utils/store";
 import { HighlightCandidates } from "../components/HighlightCandidates";
 import { TopHighlightCategories } from "../components/HighlightCategories";
 import { BiRefresh, BiTrash } from "react-icons/bi";
+import { swrApi } from "../api";
 
 const VideoControllerCtx = createContext<VideoPageController | null>(null);
 
@@ -74,9 +75,17 @@ export function VideoPlayer() {
 }
 
 export function ActionsMenu() {
+  const { store } = useVideoController();
+  const { trigger: triggerRemove } = swrApi.videoRemove.useSWRMutation();
+  const videoId = store.id;
 
   const onClickHandler = useCallback((e) => {
     alert('TODO: not implemented yet');
+  }, []);
+
+  const onRemoveClickHandler = useCallback(async () => {
+    await triggerRemove({ id: videoId });
+    window.location.href= '/';  // redirect to home page
   }, []);
   
 
@@ -90,7 +99,7 @@ export function ActionsMenu() {
           </a>
         </li>
         <li>
-          <a onClick={onClickHandler}>
+          <a onClick={onRemoveClickHandler}>
             <BiTrash />
             Delete
           </a>
