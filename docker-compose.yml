@@ -2,6 +2,8 @@ version: '3'
 services:
   video-lab:
     build: .
+    volumes:
+      - .:/app
     ports:
       - "3000:3000"  # Forward host's port 3000 to container's port 3000
       - "3001:3001"  # Similarly, for other ports
@@ -9,3 +11,4 @@ services:
     # Other configurations like volumes, environment variables, etc.
     environment:
       - PYTHON_PATH=/opt/venv/bin/python
+
