@@ -4,6 +4,9 @@ services:
     build: .
     volumes:
       - .:/app
+      # Persists node_modules by creating an anonymous volume,
+      # which is important because the node_modules directory in your container can get overridden by the volume mount.
+      - /app/node_modules
     ports:
       - "3000:3000"  # Forward host's port 3000 to container's port 3000
       - "3001:3001"  # Similarly, for other ports
@@ -11,4 +14,6 @@ services:
     # Other configurations like volumes, environment variables, etc.
     environment:
       - PYTHON_PATH=/opt/venv/bin/python
+    command: >
+      sh -c "npm install && npm run dev"
 

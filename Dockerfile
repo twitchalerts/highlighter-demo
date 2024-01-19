@@ -28,13 +28,13 @@ RUN apt update \
 WORKDIR /app
 
 # Install project dependencies
-RUN npm install
+# RUN npm install
 
 # Build the React app
 # RUN npm run build
 
 # Expose the port that the React app will run on
-EXPOSE 3000
+# EXPOSE 3000
 
 # Set the command to start the React app
-CMD ["npm", "run", "dev"]
+# CMD ["npm", "run", "dev"]

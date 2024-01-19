@@ -1,0 +1,37 @@
+[
+    {
+        "image": "1680091033-overhauled-maps-in-cs-go-source-2.jpg",
+        "annotations": [
+            "FPS"
+        ]
+    },
+    {
+        "image": "AzH34pjH9fiqZSpEPfxwkU.jpg",
+        "annotations": [
+            "FPS",
+            "gunfire"
+        ]
+    },
+
+    {
+        "image": "cs2-follow-crosshair-featured.jpg",
+        "annotations": [
+            "FPS",
+            "planting"
+        ]
+    },
+    {
+        "image": "fpsyg-12-770139-g001.jpg",
+        "annotations": [
+            "MOBA"
+        ]
+    },
+    {
+        "image": "league81.jpg",
+        "annotations": [
+            "MOBA"
+        ]
+    }
+
+
+]
