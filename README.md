@@ -2,6 +2,13 @@
 
 # Run project locally
 
+Set enviroment variables
+
+```sh
+cp .env.exaple .env.local
+```
+
+
 Build the docker container
 
 ```sh
