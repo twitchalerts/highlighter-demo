@@ -5,6 +5,7 @@ import generateThumbnail from "./helpers/generate-thumbnail";
 import { executeCommand } from "./helpers/exec";
 import extractAudio from "./helpers/extract-audio";
 import { getVideoMetadata } from "./helpers/get-video-metadata";
+import { classifyAudio } from "./helpers/classify-audio";
 
 const PYTHON_PATH = process.env.PYTHON_PATH || 'python';
 
@@ -30,10 +31,10 @@ export async function processVideo(id: string) {
     fs.writeFileSync(path.join(videoDir, 'info.json'), JSON.stringify(info));
 
     // extract audio
-    const audioPath = await extractAudio(videoPath, path.join(videoDir, 'audio.wav'));
+    await extractAudio(videoPath, path.join(videoDir, 'audio.wav'));
 
     // run audio classification
-    await executeCommand(`${PYTHON_PATH} ./scripts/yamnet_classifier.py ${audioPath} ${videoDir}`);
+    await classifyAudio(id);
   } catch (err) {
     console.error(err);
   }

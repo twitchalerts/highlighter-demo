@@ -1,6 +1,6 @@
 # Video lab
 
-# Run project locally
+## Run project locally
 
 Set enviroment variables
 

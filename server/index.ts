@@ -37,6 +37,13 @@ const appRouter = t.router({
       await db.video.remove(input.id);
       return true;
     }),
+  videoProcessLink: publicProcedure
+    .input(z.object({ link: z.string() }))
+    .mutation(async (opts) => {
+      const { input } = opts;
+      await db.video.remove(input.id);
+      return true;
+    }),
 });
 
 const app = express();

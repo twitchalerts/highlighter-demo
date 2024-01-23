@@ -5,6 +5,7 @@ import cors from 'cors';
 import fs from 'fs';
 import { v4 as uuidv4 } from 'uuid';
 import { processVideo } from '../process-video';
+import { createTask } from './create-task';
 
 const app = express();
 
@@ -31,16 +32,17 @@ app.post('/uploader', async (req, res) => {
         return res.status(400).send({ error: 'Only video files are allowed.' });
     }
 
-    // Generate unique ID
-    const currentDate = new Date().toISOString().slice(0, 10); // Format as 'YYYY-MM-DD'
-    const uniqueID = currentDate + '-' + Date.now() + '-' + uuidv4(); // Use date to keep directory sorted by date
+    // // Generate unique ID
+    // const currentDate = new Date().toISOString().slice(0, 10); // Format as 'YYYY-MM-DD'
+    // const uniqueID = currentDate + '-' + Date.now() + '-' + uuidv4(); // Use date to keep directory sorted by date
 
-    // Create a new directory for the video
-    const newDir = `${uploadDir}/${uniqueID}`;
-    fs.mkdirSync(newDir, { recursive: true });
+    // // Create a new directory for the video
+    // const newDir = `${uploadDir}/${uniqueID}`;
+    // fs.mkdirSync(newDir, { recursive: true });
+    const { id, dir } = createTask();
 
     // Set new file name and path
-    const newFilePath = `${newDir}/video.mp4`;
+    const newFilePath = `${dir}/video.mp4`;
 
     // Move the file to the new directory
     try {
@@ -52,17 +54,17 @@ app.post('/uploader', async (req, res) => {
 
     // Create info.json file
     const info = {
-        id: uniqueID,
+        id,
         name: uploadedFile.name,
         size: uploadedFile.size
     };
-    fs.writeFileSync(`${newDir}/info.json`, JSON.stringify(info));
+    fs.writeFileSync(`${dir}/info.json`, JSON.stringify(info));
 
     // Send response
     res.send(info);
 
     // Process the video
-    processVideo(uniqueID);
+    processVideo(id);
 });
 
 const PORT = 3001;

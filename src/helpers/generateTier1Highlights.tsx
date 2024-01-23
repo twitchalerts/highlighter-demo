@@ -119,7 +119,11 @@ function findSegmentWithMaxScore(classificatorData: ClassificatorData, usedIndex
 }
 
 
-export function findTopSegments(classificatorData: ClassificatorData, segmentLength: number, maxSegments: number, getSegmentScore: (segment: SegmentSummary) => number): SegmentSummary[] {
+export function findTopSegments(
+    classificatorData: ClassificatorData,
+    segmentLength: number,
+    maxSegments: number,
+    getSegmentScore: (segment: SegmentSummary) => number): SegmentSummary[] {
     const usedIndexes: Record<number, boolean> = {};
     const segments: SegmentSummary[] = [];
 
