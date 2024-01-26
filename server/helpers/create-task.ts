@@ -2,7 +2,7 @@ import { v4 as uuidv4 } from 'uuid';
 import { uploadDir } from '../settings';
 import fs from 'fs';
 
-export function createTask() {
+export function createVideoDir() {
   // Generate unique ID
   const currentDate = new Date().toISOString().slice(0, 10); // Format as 'YYYY-MM-DD'
   const uniqueID = currentDate + '-' + Date.now() + '-' + uuidv4(); // Use date to keep directory sorted by date

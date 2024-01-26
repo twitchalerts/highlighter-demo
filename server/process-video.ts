@@ -4,8 +4,9 @@ import fs from "fs";
 import generateThumbnail from "./helpers/generate-thumbnail";
 import { executeCommand } from "./helpers/exec";
 import extractAudio from "./helpers/extract-audio";
-import { getVideoMetadata } from "./helpers/get-video-metadata";
+import { getMediaMetadata } from "./helpers/get-video-metadata";
 import { classifyAudio } from "./helpers/classify-audio";
+import { db } from "./db";
 
 const PYTHON_PATH = process.env.PYTHON_PATH || 'python';
 
@@ -22,13 +23,14 @@ export async function processVideo(id: string) {
     // create thumbnail
     await generateThumbnail(videoPath, videoDir);
 
-    // get video duration, metadata and update info.json
-    const metadata = await getVideoMetadata(videoPath);
+    // fetch video duration, metadata and update info.json
+    const metadata = await getMediaMetadata(videoPath);
     const duration = metadata.format.duration;
-    const info = JSON.parse(fs.readFileSync(path.join(videoDir, 'info.json'), 'utf-8'));
-    info.duration = duration;
-    info.metadata = metadata;
-    fs.writeFileSync(path.join(videoDir, 'info.json'), JSON.stringify(info));
+
+    db.video.updateInfo(id, {
+      duration,
+      metadata
+    });
 
     // extract audio
     await extractAudio(videoPath, path.join(videoDir, 'audio.wav'));

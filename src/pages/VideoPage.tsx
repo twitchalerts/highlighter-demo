@@ -39,11 +39,29 @@ export function VideoPage() {
 
 function VideoPageView() {
   const { store } = useVideoController();
+  const isInfoLoaded = store.useState(s => s.isInfoLoaded);
+  const error = store.useState(s => s.error);
   const name = store.useState(s => s.name);
+
+  if (error) {
+    return (
+      <>
+        <div role="alert" className="alert alert-error">
+          <span>{error}</span>
+        </div>
+        <ActionsMenu />
+      </>
+    )
+  }
+
+  if (!isInfoLoaded) {
+    return <div>Loading...</div>
+  }
+
   return (
     <div className="relative">
       <h1 className="text-gray-400">{name}</h1>
-      <VideoPlayer />
+      <MainVideoPlayer />
       <ActionsMenu />
       {/* <VideoCursor/> */}
       {/* <WaveSurferComponent videoSelector="#video" />
@@ -55,8 +73,9 @@ function VideoPageView() {
 }
 
 
-export function VideoPlayer() {
-  const { setCursor, videoUrl } = useVideoController();
+export function MainVideoPlayer() {
+  const { setCursor, videoUrl, store } = useVideoController();
+  const { sourcePlatform, sourceId } = store;
   const videoElId = 'video';
   const videoRef = useRef<HTMLVideoElement | null>(null);
 
@@ -70,7 +89,19 @@ export function VideoPlayer() {
     }
   }, []);
 
+  // show twitch player for twitch videos
+  if (sourcePlatform === 'twitch') {
 
+    return (
+      <iframe
+        src={`https://player.twitch.tv/?video=${sourceId}&autoplay=false&parent=localhost&parent=videolab.streamlabs.dev`}
+        width="100%"
+        height={400}
+      />
+    )
+  }
+
+  // show default video player for other videos
   return (<video src={videoUrl} id={videoElId} className="w-full max-h-80" controls />);
 }
 
@@ -85,9 +116,9 @@ export function ActionsMenu() {
 
   const onRemoveClickHandler = useCallback(async () => {
     await triggerRemove({ id: videoId });
-    window.location.href= '/';  // redirect to home page
+    window.location.href = '/';  // redirect to home page
   }, []);
-  
+
 
   return (
     <div className="w-full flex justify-center p-2">

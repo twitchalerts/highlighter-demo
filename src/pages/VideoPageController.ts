@@ -69,6 +69,12 @@ export class VideoPageController {
         presets: { default: DEFAULT_PRESET },
         audioHighlightsTier1: [] as AudioSegment[],
         topCategories: cloneDeep(topCategories) as TopCategory[],
+        sourceUrl: '',
+        sourcePlatform: '' as VideoInfo['sourcePlatform'],
+        sourceId: '',
+        metadata: null as (null | any),
+        isInfoLoaded: false,
+        error: '',
     }) satisfies VideoInfo;
 
     constructor(id: string) {
@@ -94,7 +100,10 @@ export class VideoPageController {
             }
 
             this.store.setState(s => { 
-                Object.assign(s, videoInfo);
+                Object.assign(s, {
+                    isInfoLoaded: true,
+                    ...videoInfo
+                });
              });
 
             // load classificator data if not loaded yet

@@ -6,8 +6,12 @@ import { db } from './db';
 import { publicProcedure, router } from './trpc';
 import cors from 'cors';
 import express from 'express';
-
 import './helpers/file-uploader'
+import { executeCommand } from './helpers/exec';
+import path from 'path';
+import { classifyAudio } from './helpers/classify-audio';
+import extractAudio from './helpers/extract-audio';
+import { getMediaMetadata } from './helpers/get-video-metadata';
 
 // created for each request
 const createContext = ({
@@ -40,9 +44,56 @@ const appRouter = t.router({
   videoProcessLink: publicProcedure
     .input(z.object({ link: z.string() }))
     .mutation(async (opts) => {
-      const { input } = opts;
-      await db.video.remove(input.id);
-      return true;
+      // check if link is valid
+      const extractTwitchVideoID = (url: string) => url.match(/twitch\.tv\/videos\/(\d+)/)?.[1] || null;
+      const twitchVideoId = extractTwitchVideoID(opts.input.link);
+
+      if (!twitchVideoId) {
+        throw new Error('Invalid link');
+      }
+
+      const sourceUrl = `https://www.twitch.tv/videos/${twitchVideoId}`;
+
+      // create folder
+      const id = db.video.create({ 
+        sourceUrl,
+        sourcePlatform: 'twitch',
+        sourceId: twitchVideoId
+      });
+      const dir = db.video.getDir(id);
+      const mp4AudioPath = path.join(dir, `audio.m4a`);
+      
+      // download audio
+      try {
+        console.info(`START DOWNLOADNG AUDIO`);
+        await executeCommand(`yt-dlp -f bestaudio --extract-audio --audio-format m4a -o '${mp4AudioPath}' ${sourceUrl}`);
+      } catch (error: any) {
+        console.error(error);
+        db.video.updateInfo(id, { error: error.message });
+        throw new Error('Error downloading audio');
+      }
+
+      // resample audio to 16kHz wav format
+      const wavAudioPath = path.join(dir, 'audio.wav');
+      await extractAudio(mp4AudioPath, wavAudioPath);
+
+      // fetch duration, metadata and update info.json
+      const metadata = await getMediaMetadata(wavAudioPath);
+      const duration = metadata.format.duration;
+
+      db.video.updateInfo(id, {
+        duration,
+        metadata
+      });
+
+
+      // classify audio with YAMNet in async mode
+      classifyAudio(id);
+
+      const info = db.video.getInfo(id);
+      console.info(`VIDEO INFO`, info);
+
+      return info;
     }),
 });
 

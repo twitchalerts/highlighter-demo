@@ -1,11 +1,10 @@
 import express from 'express';
 import fileUpload from 'express-fileupload';
-import { uploadDir } from '../settings';
 import cors from 'cors';
 import fs from 'fs';
 import { v4 as uuidv4 } from 'uuid';
 import { processVideo } from '../process-video';
-import { createTask } from './create-task';
+import { db } from '../db';
 
 const app = express();
 
@@ -32,14 +31,9 @@ app.post('/uploader', async (req, res) => {
         return res.status(400).send({ error: 'Only video files are allowed.' });
     }
 
-    // // Generate unique ID
-    // const currentDate = new Date().toISOString().slice(0, 10); // Format as 'YYYY-MM-DD'
-    // const uniqueID = currentDate + '-' + Date.now() + '-' + uuidv4(); // Use date to keep directory sorted by date
-
-    // // Create a new directory for the video
-    // const newDir = `${uploadDir}/${uniqueID}`;
-    // fs.mkdirSync(newDir, { recursive: true });
-    const { id, dir } = createTask();
+    // Create a task with unique ID and directory
+    const id = db.video.create();
+    const dir = db.video.getDir(id);
 
     // Set new file name and path
     const newFilePath = `${dir}/video.mp4`;

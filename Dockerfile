@@ -10,6 +10,9 @@ RUN apt-get update && apt-get install -y \
 # Create a Python virtual environment
 RUN python3 -m venv /opt/venv
 
+# Activate the virtual environment
+ENV PATH="/opt/venv/bin:$PATH"
+
 # Activate virtual environment and install packages
 RUN . /opt/venv/bin/activate && pip3 install --no-cache-dir \
     tensorflow \
@@ -18,7 +21,8 @@ RUN . /opt/venv/bin/activate && pip3 install --no-cache-dir \
     matplotlib \
     IPython \
     scipy \
-    json5
+    json5 \
+    yt-dlp
 
 # Install FFmpeg
 RUN apt update \

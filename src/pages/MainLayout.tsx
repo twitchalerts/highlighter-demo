@@ -24,12 +24,8 @@ const MainLayout = ({ children }: MainLayoutProps) => {
             </div>
 
             {/* Main content */}
-            <div className="flex-grow">
-                {/* Navbar */}
-                {/* ... */}
-
-                {/* Page content */}
-                <div className="p-4">{children}</div>
+            <div className="flex-grow p-4">
+                {children}
             </div>
         </div>
     );
