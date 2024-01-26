@@ -71,6 +71,8 @@ export type SegmentSummary = {
     scoresForEachClass: Record<string, { total: number, avg: number, peak: number, peakInd: number}>,
 }
 
+export type SegmentSummaryWithScore = SegmentSummary & { score: number };
+
 export function summarizeSegment(classificatorData: ClassificatorData, startInd: number, length: number) {
     const scoresForEachClass: SegmentSummary['scoresForEachClass'] = {} ;
     for (let ind = startInd; ind < startInd + length; ind++) {
@@ -97,7 +99,7 @@ export function summarizeSegment(classificatorData: ClassificatorData, startInd:
 
 function findSegmentWithMaxScore(classificatorData: ClassificatorData, usedIndexes: Record<number, boolean>, segmentLength: number, getSegmentScore: (segment: SegmentSummary) => number): SegmentSummary & { score: number } {
     let maxScore = 0;
-    let maxScoreSegment: SegmentSummary & { score: number } = null;
+    let maxScoreSegment: SegmentSummaryWithScore = null;
 
     function canUseSegment(startInd: number, length: number) {
         for (let ind = startInd; ind < startInd + length; ind++) {
@@ -123,14 +125,16 @@ export function findTopSegments(
     classificatorData: ClassificatorData,
     segmentLength: number,
     maxSegments: number,
-    getSegmentScore: (segment: SegmentSummary) => number): SegmentSummary[] {
+    getSegmentScore: (segment: SegmentSummary) => number,
+    treshold = 0,
+    ): SegmentSummary[] {
     const usedIndexes: Record<number, boolean> = {};
-    const segments: SegmentSummary[] = [];
+    const segments: SegmentSummaryWithScore[] = [];
 
 
     for (let i = 0; i < maxSegments; i++) {
         const segment = findSegmentWithMaxScore(classificatorData, usedIndexes, segmentLength, getSegmentScore);
-        if (!segment) break;
+        if (!segment || segment.score <= treshold) break;
         segments.push(segment);
         for (let ind = segment.startInd; ind < segment.startInd + segment.length; ind++) {
             usedIndexes[ind] = true;

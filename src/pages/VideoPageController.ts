@@ -161,7 +161,7 @@ export class VideoPageController {
             const segments = findTopSegments(classificatorData, 30, 5, sementSummary => {
                 const avgs = triggerAudioClasses.map(className => sementSummary.scoresForEachClass[className].avg);
                 return Math.max(...avgs);
-            });
+            }, 0.002);
             this.store.setState(s => {
                 s.topCategories[categoryInd].segments = segments;
             });

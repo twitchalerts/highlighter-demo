@@ -53,6 +53,22 @@ Audio(wav_data, rate=sample_rate)
 waveform = wav_data / tf.int16.max
 
 
+def process_chunk(waveform_chunk, model, class_names):
+    # Normalize waveform
+    waveform_chunk = waveform_chunk / tf.int16.max
+
+    # Run the model, check the output.
+    scores, embeddings, spectrogram = model(waveform_chunk)
+    scores.shape.assert_is_compatible_with([None, 521])
+    embeddings.shape.assert_is_compatible_with([None, 1024])
+  spectrogram.shape.assert_is_compatible_with([None, 64])
+
+    # Aggregate the scores
+    mean_scores = np.mean(scores, axis=0)
+
+    return mean_scores,
+
+
 # Run the model, check the output.
 scores, embeddings, spectrogram = model(waveform)
 scores.shape.assert_is_compatible_with([None, 521])
