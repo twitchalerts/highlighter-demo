@@ -7,7 +7,7 @@ import { VideoInfo } from "../../server/db";
 import { api } from "../api";
 import { sleep } from "../utils/sleep";
 import { initStore } from "../utils/store";
-import { SegmentSummary, findHighlightAudioSegments, findTopSegments } from "../helpers/generateTier1Highlights";
+import { SegmentSummary, calculateSegmentScoreByAvgScores, findHighlightAudioSegments, findTopSegments } from "../helpers/generateTier1Highlights";
 import { AudioSegment, ClassificatorData, DEFAULT_PRESET } from "../helpers/video-helpers";
 import { formatSeconds } from "../helpers/time";
 import { cloneDeep } from "lodash";
@@ -107,7 +107,7 @@ export class VideoPageController {
              });
 
             // load classificator data if not loaded yet
-            const shouldLoadClassificatorData = !this.store.classificatorData && videoInfo.files.includes('scores_data.json');
+            const shouldLoadClassificatorData = !this.store.classificatorData && videoInfo.files.includes('scores_classes.json');
             if (shouldLoadClassificatorData) {
                 await this.loadClassificatorData();
             }
@@ -124,7 +124,7 @@ export class VideoPageController {
 
     private async loadClassificatorData() {
         const id = this.store.id;
-        const classificatorData =  await api.videoClassificatorData.query(id);
+        const classificatorData =  await api.videoClassificatorData.query({ id, classNames: ['Shout','Yell', 'Screaming', 'Cheering', 'Applause', 'Laughter', 'Whoop', 'Clapping', 'Gunshot, gunfire']});
         const config = this.store.presets.default;
         const filteredClassificatorData = { 
             classNames: [],
@@ -146,21 +146,11 @@ export class VideoPageController {
             s.filteredClassificatorData = filteredClassificatorData;
         });
         
-
-        // foun highlight audio segments
-        // const audioHighlights = findHighlightAudioSegments(filteredClassificatorData, 30, config.tier1SegmentsCnt);
-        // this.store.setState(s => { 
-        //     s.classificatorData = classificatorData;
-        //     s.filteredClassificatorData = filteredClassificatorData;
-        //     s.audioHighlightsTier1 = audioHighlights;
-        // });
-
         // find top categories
         this.store.topCategories.forEach((category, categoryInd) => {
             const { triggerAudioClasses } = category;
-            const segments = findTopSegments(classificatorData, 30, 5, sementSummary => {
-                const avgs = triggerAudioClasses.map(className => sementSummary.scoresForEachClass[className].avg);
-                return Math.max(...avgs);
+            const segments = findTopSegments(classificatorData, 30, 5, (classificatorData, startInd, length) => {
+                return calculateSegmentScoreByAvgScores(classificatorData, startInd, length, triggerAudioClasses);
             }, 0.002);
             this.store.setState(s => {
                 s.topCategories[categoryInd].segments = segments;

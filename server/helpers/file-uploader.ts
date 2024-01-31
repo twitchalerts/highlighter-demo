@@ -12,7 +12,7 @@ app.use(cors());
 
 // Middleware for file upload
 app.use(fileUpload({
-    limits: { fileSize: 4 * 1024 * 1024 * 1024 }, // 4GB limit or adjust as needed
+    limits: { fileSize: 16 * 1024 * 1024 * 1024 }, // 16GB limit or adjust as needed
     useTempFiles: true,
     tempFileDir: '/tmp/',
 }));

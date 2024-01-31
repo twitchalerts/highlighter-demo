@@ -66,40 +66,90 @@ function getMaxScoresSortedIndexedArr(classificatorData: ClassificatorData): { s
 }
 
 export type SegmentSummary = {
+    score: number,
     startInd: number,
     length: number,
-    scoresForEachClass: Record<string, { total: number, avg: number, peak: number, peakInd: number}>,
 }
 
 export type SegmentSummaryWithScore = SegmentSummary & { score: number };
 
-export function summarizeSegment(classificatorData: ClassificatorData, startInd: number, length: number) {
-    const scoresForEachClass: SegmentSummary['scoresForEachClass'] = {} ;
-    for (let ind = startInd; ind < startInd + length; ind++) {
-        for (let classInd = 0; classInd < classificatorData.classNames.length; classInd++) {
-            const className = classificatorData.classNames[classInd];
-            const score = classificatorData.scores[classInd][ind];
-            if (!scoresForEachClass[className]) {
-                scoresForEachClass[className] = { total: 0, avg: 0, peak: 0, peakInd: 0 };
-            }
-            scoresForEachClass[className].total += score;
-            if (score > scoresForEachClass[className].peak) {
-                scoresForEachClass[className].peak = score;
-                scoresForEachClass[className].peakInd = ind;
-            }
-        }
-    }
-    // calculate avg
-    for (const className in scoresForEachClass) {
-        scoresForEachClass[className].avg = scoresForEachClass[className].total / length;
-    }
-    return { startInd, length, scoresForEachClass };
-}
+// export function summarizeSegment(classificatorData: ClassificatorData, startInd: number, length: number) {
+//     const scoresForEachClass: SegmentSummary['scoresForEachClass'] = {} ;
+//     for (let ind = startInd; ind < startInd + length; ind++) {
+//         for (let classInd = 0; classInd < classificatorData.classNames.length; classInd++) {
+//             const className = classificatorData.classNames[classInd];
+//             const score = classificatorData.scores[classInd][ind];
+//             if (!scoresForEachClass[className]) {
+//                 scoresForEachClass[className] = { total: 0, avg: 0, peak: 0, peakInd: 0 };
+//             }
+//             scoresForEachClass[className].total += score;
+//             if (score > scoresForEachClass[className].peak) {
+//                 scoresForEachClass[className].peak = score;
+//                 scoresForEachClass[className].peakInd = ind;
+//             }
+//         }
+//     }
+//     // calculate avg
+//     for (const className in scoresForEachClass) {
+//         scoresForEachClass[className].avg = scoresForEachClass[className].total / length;
+//     }
+//     return { startInd, length, scoresForEachClass };
+// }
+
+// export function summarizeSegment(classificatorData: ClassificatorData, startInd: number, length: number) {
+//     const scoresForEachClass: SegmentSummary['scoresForEachClass'] = {} ;
+//     for (let ind = startInd; ind < startInd + length; ind++) {
+//         for (let classInd = 0; classInd < classificatorData.classNames.length; classInd++) {
+//             const className = classificatorData.classNames[classInd];
+//             const score = classificatorData.scores[classInd][ind];
+//             if (!scoresForEachClass[className]) {
+//                 scoresForEachClass[className] = { total: 0, avg: 0, peak: 0, peakInd: 0 };
+//             }
+//             scoresForEachClass[className].total += score;
+//             if (score > scoresForEachClass[className].peak) {
+//                 scoresForEachClass[className].peak = score;
+//                 scoresForEachClass[className].peakInd = ind;
+//             }
+//         }
+//     }
+//     // calculate avg
+//     for (const className in scoresForEachClass) {
+//         scoresForEachClass[className].avg = scoresForEachClass[className].total / length;
+//     }
+//     return { startInd, length, scoresForEachClass };
+// }
 
 
-function findSegmentWithMaxScore(classificatorData: ClassificatorData, usedIndexes: Record<number, boolean>, segmentLength: number, getSegmentScore: (segment: SegmentSummary) => number): SegmentSummary & { score: number } {
+// function findSegmentWithMaxScore(classificatorData: ClassificatorData, usedIndexes: Record<number, boolean>, segmentLength: number, getSegmentScore: (segment: SegmentSummary) => number): SegmentSummary & { score: number } {
+//     let maxScore = 0;
+//     let maxScoreSegment: SegmentSummaryWithScore = null;
+
+//     function canUseSegment(startInd: number, length: number) {
+//         for (let ind = startInd; ind < startInd + length; ind++) {
+//             if (usedIndexes[ind]) return false;
+//         }
+//         return true;
+//     }
+
+//     for (let startInd = 0; startInd < classificatorData.scores[0].length - segmentLength; startInd++) {
+//         if (!canUseSegment(startInd, segmentLength)) continue;
+//         const segment = summarizeSegment(classificatorData, startInd, segmentLength);
+//         const score = getSegmentScore(segment);
+//         if (score > maxScore) {
+//             maxScore = score;
+//             maxScoreSegment = { ...segment, score };
+//         }
+//     }
+//     return maxScoreSegment;
+// }
+
+export type GetSegmentScoreFn = (classificatorData: ClassificatorData, startInd: number, segmentLength: number) => number;
+
+function findSegmentWithMaxScore(classificatorData: ClassificatorData, usedIndexes: Record<number, boolean>, segmentLength: number,
+     getSegmentScore: GetSegmentScoreFn)
+{
     let maxScore = 0;
-    let maxScoreSegment: SegmentSummaryWithScore = null;
+    let maxScoreSegment = { score: 0, startInd: 0, length: 0 };
 
     function canUseSegment(startInd: number, length: number) {
         for (let ind = startInd; ind < startInd + length; ind++) {
@@ -108,13 +158,13 @@ function findSegmentWithMaxScore(classificatorData: ClassificatorData, usedIndex
         return true;
     }
 
-    for (let startInd = 0; startInd < classificatorData.scores[0].length - segmentLength; startInd++) {
+    for (let startInd = 0; startInd < classificatorData.scores.length - segmentLength; startInd++) {
         if (!canUseSegment(startInd, segmentLength)) continue;
-        const segment = summarizeSegment(classificatorData, startInd, segmentLength);
-        const score = getSegmentScore(segment);
+        //const segment = summarizeSegment(classificatorData, startInd, segmentLength);
+        const score = getSegmentScore(classificatorData, startInd, segmentLength);
         if (score > maxScore) {
             maxScore = score;
-            maxScoreSegment = { ...segment, score };
+            maxScoreSegment = { score, startInd, length: segmentLength };
         }
     }
     return maxScoreSegment;
@@ -125,11 +175,11 @@ export function findTopSegments(
     classificatorData: ClassificatorData,
     segmentLength: number,
     maxSegments: number,
-    getSegmentScore: (segment: SegmentSummary) => number,
+    getSegmentScore: GetSegmentScoreFn,
     treshold = 0,
-    ): SegmentSummary[] {
+    ) {
     const usedIndexes: Record<number, boolean> = {};
-    const segments: SegmentSummaryWithScore[] = [];
+    const segments: {score: number, startInd: number, length: number}[] = [];
 
 
     for (let i = 0; i < maxSegments; i++) {
@@ -141,4 +191,25 @@ export function findTopSegments(
         }
     }
     return segments;
+}
+
+
+export function calculateSegmentScoreByAvgScores(classificatorData: ClassificatorData, startInd: number, length: number, classNames: string[]) {
+    let totalScore = 0;
+    for (let ind = startInd; ind < startInd + length; ind++) {
+        let frameMaxScore = 0;
+        for (let classInd = 0; classInd < classNames.length; classInd++) {
+            const className = classNames[classInd];
+            const classScore = getScoreForClass(classificatorData, ind, className);
+            frameMaxScore = Math.max(classScore, frameMaxScore);
+        }
+        totalScore += frameMaxScore;
+    }
+    const avgScore = totalScore / length;
+    return avgScore;
+}
+
+function getScoreForClass(classificatorData: ClassificatorData, frameInd: number, className: string) {
+    const classInd = classificatorData.classNames.indexOf(className);
+    return classificatorData.scores[frameInd][classInd];
 }

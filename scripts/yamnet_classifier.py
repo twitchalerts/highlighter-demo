@@ -52,28 +52,48 @@ Audio(wav_data, rate=sample_rate)
 # The wav_data needs to be normalized to values in [-1.0, 1.0]
 waveform = wav_data / tf.int16.max
 
+# Length of each chunk in seconds (30 minutes = 1800 seconds)
+chunk_length_seconds = 1800
 
-def process_chunk(waveform_chunk, model, class_names):
-    # Normalize waveform
-    waveform_chunk = waveform_chunk / tf.int16.max
+# Number of samples per chunk
+samples_per_chunk = sample_rate * chunk_length_seconds
 
-    # Run the model, check the output.
-    scores, embeddings, spectrogram = model(waveform_chunk)
-    scores.shape.assert_is_compatible_with([None, 521])
-    embeddings.shape.assert_is_compatible_with([None, 1024])
-  spectrogram.shape.assert_is_compatible_with([None, 64])
+# Calculate the total number of chunks
+total_chunks = int(np.ceil(len(wav_data) / samples_per_chunk))
 
-    # Aggregate the scores
-    mean_scores = np.mean(scores, axis=0)
+# Process each chunk
+for chunk_idx in range(total_chunks):
+    start_sample = chunk_idx * samples_per_chunk
+    end_sample = start_sample + samples_per_chunk
+    chunk_waveform = wav_data[start_sample:end_sample]
 
-    return mean_scores,
+    # Ensure chunk is in the correct format for the model
+    chunk_waveform = chunk_waveform / tf.int16.max  # Normalize
+
+    # Process the chunk with the model
+    scores, embeddings, spectrogram = model(chunk_waveform)
+    
+    # Convert scores to a list (or perform any required aggregation/processing)
+    scores_list = scores.numpy().tolist()
+
+  # Save each chunk's scores to a separate JSON file without formatting
+    json_output_path = os.path.join(args.output_dir, f'scores_data_chunk_{chunk_idx}.json')
+    with open(json_output_path, 'w') as file:
+      # No indentation or additional spacing is used here for compactness
+      json.dump({"scores": scores_list}, file)
+
+    print(f"Chunk {chunk_idx} processed and saved.")
+
+# # Run the model, check the output.
+# scores, embeddings, spectrogram = model(waveform)
+# scores.shape.assert_is_compatible_with([None, 521])
+# embeddings.shape.assert_is_compatible_with([None, 1024])
+# spectrogram.shape.assert_is_compatible_with([None, 64])
+# scores_np = scores.numpy()
 
 
-# Run the model, check the output.
-scores, embeddings, spectrogram = model(waveform)
-scores.shape.assert_is_compatible_with([None, 521])
-embeddings.shape.assert_is_compatible_with([None, 1024])
-spectrogram.shape.assert_is_compatible_with([None, 64])
+
+
 
 # Find the name of the class with the top score when mean-aggregated across frames.
 def class_names_from_csv(class_map_csv_text):
@@ -85,87 +105,39 @@ def class_names_from_csv(class_map_csv_text):
 
 class_map_path = model.class_map_path().numpy()
 class_names = class_names_from_csv(tf.io.read_file(class_map_path).numpy().decode('utf-8'))
-print(class_names[scores.numpy().mean(axis=0).argmax()])  # Should print tha class name.
 
-scores_np = scores.numpy()
-spectrogram_np = spectrogram.numpy()
-infered_class = class_names[scores_np.mean(axis=0).argmax()]
-print(f'The main sound is: {infered_class}')
-
-
-
-
-# Plot and label the model output scores for the top-scoring classes.
-mean_scores = np.mean(scores, axis=0)
-top_n = 10
-top_class_indices = np.argsort(mean_scores)[::-1][:top_n]
-
-
-# Define the class names you are interested in.
-desired_classes = ['Shout','Yell', 'Screaming', 'Cheering', 'Applause', 'Laughter', 'Whoop', 'Clapping', 'Gunshot, gunfire']  # Add more class names as needed
-
-# Find the indices of these classes.
-desired_indices = [class_names.index(cls) for cls in desired_classes if cls in class_names]
-
-# Ensure that the desired classes are included in the top classes to plot.
-for index in desired_indices:
-    if index not in top_class_indices:
-        top_class_indices = np.append(top_class_indices, index)
 
 
 # SAVE TO JSON
-# Extract the scores for top_class_indices.
-scores_data = scores_np[:, top_class_indices].T.tolist()
 
-# Extract the class names for top_class_indices.
-class_names_data = [class_names[i] for i in top_class_indices]
-
-# Create a dictionary to hold the scores and class names.
-data_to_save = {
-    "classNames": class_names_data,
-    "scores": scores_data
-}
+# Create a dictionary to hold the class names.
+data_to_save = class_names;
 
 # Convert the dictionary to a JSON string.
 json_data = json.dumps(data_to_save, indent=4)
 
 # Write the JSON data to a file.
-json_output_path = os.path.join(args.output_dir, 'scores_data.json')
+json_output_path = os.path.join(args.output_dir, 'scores_classes.json')
 with open(json_output_path, 'w') as file:
     file.write(json_data)
 
-print("Data saved to scores_data.json")
+print("Data saved")
 
 # /SAVE TO JSON
 
 
-# # UNCOMMENT TO PLOT SPECTROGRAM and SCORES
-
-# plt.figure(figsize=(10, 6))
-
-# # Plot the waveform.
-# plt.subplot(3, 1, 1)
-# plt.plot(waveform)
-# plt.xlim([0, len(waveform)])
-
-# # Plot the log-mel spectrogram (returned by the model).
-# plt.subplot(3, 1, 2)
-# plt.imshow(spectrogram_np.T, aspect='auto', interpolation='nearest', origin='lower')
 
 
-# plt.subplot(3, 1, 3)
-# plt.imshow(scores_np[:, top_class_indices].T, aspect='auto', interpolation='nearest', cmap='gray_r')
+# chunk_size = 16000 * 60 * 30  # 30 minutes at 16kHz
+# start_idx = 0
 
-# # Corrected y-ticks labeling
-# yticks = range(0, len(top_class_indices), 1)
-# plt.yticks(yticks, [class_names[top_class_indices[x]] for x in yticks])
-# _ = plt.ylim(-0.5 + np.array([len(top_class_indices), 0]))
+# final_scores = []
+# while start_idx < len(wav_data):
+#     end_idx = min(start_idx + chunk_size, len(wav_data))
+#     chunk = wav_data[start_idx:end_idx]
+#     chunk_scores = process_chunk(chunk, model)
 
+#     # Aggregate the results
+#     final_scores = np.concatenate((final_scores, chunk_scores))
 
-
-# # Save the figure to a file
-# figure_output_path = os.path.join(args.output_dir, 'audio-plot.png')
-# plt.savefig(figure_output_path, dpi=900) 
-
-# # Display the plot
-# plt.show()
+#     start_idx = end_idx

@@ -62,8 +62,8 @@ export const db = {
       const dir = path.join(uploadDir, id);
       fse.removeSync(dir);
     },
-    getClassificatorData(id: string) {
-      return fse.readJsonSync(path.join(uploadDir, id, 'scores_data.json'));
+    getClassificatorData(id: string, classNames: string[]) {
+      return getScoresData(id, classNames)
     },
     getInfo(id: string): VideoInfo {
       const dir = this.getDir(id);
@@ -97,6 +97,48 @@ export const db = {
     }
   }
 };
+
+
+/**
+ * Reads data from all chunk files and returns data for the given class names.
+ * @param {string[]} classNames - The class names to filter scores by.
+ * @returns {Promise<{classNames: string[], scores: number[][]}>} - The scores for the given class names.
+ */
+async function getScoresData(id: string, classNames: string[]): Promise<{classNames: string[], scores: number[][]}> {
+  // Path to the directory containing chunk files and class names file
+  const outputDir = db.video.getDir(id);
+  
+  // Read the class names from scores_classes.json
+  const allClassNames = JSON.parse(fs.readFileSync(path.join(outputDir, 'scores_classes.json'), 'utf8'));
+  
+  // Map requested class names to indices
+  const classIndices = classNames.map(className => allClassNames.indexOf(className));
+  
+  // Initialize an array to hold aggregated scores for requested class names
+  const aggregatedScores = [];
+  
+  // Read and process each chunk file
+  let chunkIndex = 0;
+  while (fs.existsSync(path.join(outputDir, `scores_data_chunk_${chunkIndex}.json`))) {
+    // Read the chunk file
+    const chunkScores = JSON.parse(fs.readFileSync(path.join(outputDir, `scores_data_chunk_${chunkIndex}.json`), 'utf8'));
+    
+    // Extract scores for requested class names
+    const filteredScores = chunkScores.scores.map(frameScores => classIndices.map(index => frameScores[index]));
+    
+    // Append to aggregated scores
+    aggregatedScores.push(...filteredScores);
+    
+    // Move to the next chunk
+    chunkIndex++;
+  }
+  
+  return {
+    classNames,
+    scores: aggregatedScores
+  };
+}
+
 
 
 /**

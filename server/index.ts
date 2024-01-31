@@ -30,9 +30,9 @@ const appRouter = t.router({
     const { input } = opts;
     return db.video.findById(input);
   }),
-  videoClassificatorData: publicProcedure.input(z.string()).query(async (opts) => {
+  videoClassificatorData: publicProcedure.input(z.object({ id: z.string(), classNames: z.array(z.string()) })).query(async (opts) => {
     const { input } = opts;
-    return db.video.getClassificatorData(input);
+    return db.video.getClassificatorData(input.id, input.classNames);
   }),
   videoRemove: publicProcedure
     .input(z.object({ id: z.string() }))
