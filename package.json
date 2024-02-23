@@ -24,6 +24,7 @@
     "@types/express-fileupload": "^1.4.4",
     "@types/fluent-ffmpeg": "^2.1.24",
     "@types/fs-extra": "^11.0.4",
+    "@types/three": "^0.161.2",
     "@types/uuid": "^9.0.7",
     "autoprefixer": "^10.4.16",
     "axios": "^1.6.2",
@@ -62,6 +63,7 @@
     "zustand": "^4.4.7"
   },
   "devDependencies": {
+    "@react-three/fiber": "^8.15.16",
     "@tailwindcss/typography": "^0.5.10",
     "@types/glob": "^8.1.0",
     "@types/react": "^18.2.15",

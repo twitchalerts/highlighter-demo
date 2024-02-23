@@ -1,4 +1,4 @@
-import { spawn, SpawnOptionsWithoutStdio } from 'child_process';
+import { spawn } from 'child_process';
 
 /**
  * Executes a shell command and prints the output to the console.

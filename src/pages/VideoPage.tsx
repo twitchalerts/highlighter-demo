@@ -9,6 +9,7 @@ import { HighlightCandidates } from "../components/HighlightCandidates";
 import { TopHighlightCategories } from "../components/HighlightCategories";
 import { BiRefresh, BiTrash } from "react-icons/bi";
 import { swrApi } from "../api";
+import Timeline from "../components/Timeline/Timeline";
 
 const VideoControllerCtx = createContext<VideoPageController | null>(null);
 
@@ -63,6 +64,7 @@ function VideoPageView() {
       <h1 className="text-gray-400">{name}</h1>
       <MainVideoPlayer />
       <ActionsMenu />
+      <Timeline />
       {/* <VideoCursor/> */}
       {/* <WaveSurferComponent videoSelector="#video" />
           <AudioClassificationPlot /> */}
