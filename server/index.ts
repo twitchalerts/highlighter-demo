@@ -87,7 +87,7 @@ const appRouter = t.router({
       });
 
 
-      // classify audio with YAMNet in async mode
+      // classify audio with YAMNet in async mode and save scores to the working dir
       classifyAudio(id);
 
       const info = db.video.getInfo(id);
@@ -97,8 +97,9 @@ const appRouter = t.router({
     }),
 });
 
+// launch express server
 const app = express();
-app.use(cors());
+app.use(cors()); // TODO: setup correct CORS later
 
 app.use(
   '/api',

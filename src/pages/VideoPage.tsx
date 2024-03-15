@@ -5,7 +5,6 @@ import { AudioClassificationPlot } from "../components/AudioClassificationPlot";
 import { VideoPageController } from "./VideoPageController";
 import VideoCursor from "../components/VideoCursor";
 import { useObjectWithActions } from "../utils/store";
-import { HighlightCandidates } from "../components/HighlightCandidates";
 import { TopHighlightCategories } from "../components/HighlightCategories";
 import { BiRefresh, BiTrash } from "react-icons/bi";
 import { swrApi } from "../api";

@@ -2,7 +2,7 @@ import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { useVideoController } from "../pages/VideoPage";
 import { TopCategory, VideoPageControllerState, getAudioHighlightInfo } from "../pages/VideoPageController";
 import { formatSeconds } from "../helpers/time";
-import { SegmentSummary } from "../helpers/generateTier1Highlights";
+import { SegmentSummary } from "../helpers/findHighlights";
 
 
 export function TopHighlightCategories() {

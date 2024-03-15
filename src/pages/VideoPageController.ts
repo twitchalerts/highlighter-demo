@@ -7,7 +7,7 @@ import { VideoInfo } from "../../server/db";
 import { api } from "../api";
 import { sleep } from "../utils/sleep";
 import { initStore } from "../utils/store";
-import { SegmentSummary, calculateSegmentScoreByAvgScores, findHighlightAudioSegments, findTopSegments } from "../helpers/generateTier1Highlights";
+import { SegmentSummary, calculateSegmentScoreByAvgScores, findTopSegments } from "../helpers/findHighlights";
 import { AudioSegment, ClassificatorData, DEFAULT_PRESET } from "../helpers/video-helpers";
 import { formatSeconds } from "../helpers/time";
 import { cloneDeep } from "lodash";

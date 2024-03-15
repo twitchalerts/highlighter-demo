@@ -5,7 +5,7 @@
 Set enviroment variables
 
 ```sh
-cp .env.exaple .env.local
+cp .env.example .env.local
 ```
 
 

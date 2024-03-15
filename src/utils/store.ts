@@ -54,7 +54,7 @@ const createBoundedUseStore = (store => (selector, equals) =>
 type ExtractState<S> = S extends { getState: () => infer X } ? X : never;
 
 /**
- * useActions creates an action object derived from a service class.
+ * useService creates an action object derived from a service class.
  * Optionally, it allows for the extension of these actions based on the original actions.
  *
  * @param {new () => TService} ServiceClass - The service class from which actions are to be derived.
@@ -70,47 +70,8 @@ export function useService<TService, TExtend = {}>(
 ): TService & TExtend {
 
   return useObjectWithActions(() => inject(ServiceClass)) as TService & TExtend;
-
-  // return useMemo(() => {
-
-  //   // Inject the service instance based on the provided ServiceClass.
-  //   const serviceInstance = inject(ServiceClass);
-  //   const serviceCopy = { ...serviceInstance };
-
-  //   // Fetch the action names from the prototype of the service instance.
-  //   const actionNames = Object.getOwnPropertyNames(
-  //     Object.getPrototypeOf(serviceInstance)
-  //   );
-
-  //   // const actions: Record<string, any> = {};
-
-  //   // Loop through the action names and bind them to the service instance.
-  //   for (const actionName of actionNames) {
-  //     // Skip the constructor and any non-function properties.
-  //     if (actionName == 'constructor') continue;
-  //     if (!(serviceInstance as any)[actionName].bind) {
-  //       Object.defineProperty(serviceCopy, actionName, {
-  //         get : function () {
-  //           return (serviceInstance as any)[actionName];
-  //         }
-  //       });
-  //       continue;
-  //     }
-  //     (serviceCopy as any)[actionName] = (serviceInstance as any)[actionName].bind(
-  //       serviceInstance
-  //     );
-  //   }
-
-  //   // // If an extend function is provided, derive extended actions based on the original ones.
-  //   // const extendedActions = extend ? extend(actions as TService) : {};
-
-  //   // Return an object containing both the original and extended actions.
-  //   // return { ...actions, ...extendedActions } as TService & TExtend;
-  //   return serviceCopy as TService & TExtend;
-
-  // }, deps);
-
 }
+
 
 
 export function useObjectWithActions<T>(factory: () => T, deps: any[]): T {

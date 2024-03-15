@@ -81,6 +81,9 @@ export const db = {
       this.updateInfo(uniqueID, info);
       return uniqueID;
     },
+    /**
+     * Update info.json file in the video directory
+     **/ 
     updateInfo(id: string, patch: Partial<VideoInfo>) {
       const dir = this.getDir(id);
       const infoPath: string = path.join(dir, 'info.json');
@@ -92,6 +95,9 @@ export const db = {
       };
       fs.writeFileSync(infoPath, JSON.stringify(newInfo));
     },
+    /**
+     * Returns the workng directory path for the video
+     */
     getDir(id: string) {
       return path.join(uploadDir, id);
     }
