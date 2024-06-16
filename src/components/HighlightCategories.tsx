@@ -34,7 +34,7 @@ export function TopSegments({ category }: { category: TopCategory } ) {
 
 function getTopSegmentInfo(state: VideoPageControllerState, segmentSummary: SegmentSummary) {
     const videoDuration = state.duration;
-    const totalSegments = state.classificatorData?.scores.length || 0;
+    const totalSegments = state.classificatorData?.scores[0].length || 0;
     const startTimeInSec = videoDuration / totalSegments  * segmentSummary.startInd;
     const durationInSec = videoDuration / totalSegments * segmentSummary.length;
     return {

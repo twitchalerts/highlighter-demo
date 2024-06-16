@@ -72,22 +72,9 @@ const VideoUploader: React.FC = () => {
           <div className="grid p-10 card bg-base-300 rounded-box place-items-center space-y-10">
             <h2>Insert a Twitch link</h2>
             <input className='input' value={link} onChange={e => setLink(e.currentTarget.value)}/>
-            
-            <div className="form-control">
-              <label className="label cursor-pointer space-x-4">
-                <input type="checkbox" checked={true} className="checkbox" disabled={true} />
-                <span className="label-text">Upload audio only</span> 
-              </label>
-            </div>
           </div>
           
-          <div className='text-center'>
-            <button className='btn btn-primary mt-10 w-96 ' onClick={handleUpload}>
-              
-              Upload
-            </button>
-          </div>
-            
+            <button className='btn btn-primary mt-10' onClick={handleUpload}>Upload</button>
         </>
       )}
 

@@ -63,7 +63,7 @@ function VideoPageView() {
       <h1 className="text-gray-400">{name}</h1>
       <MainVideoPlayer />
       <ActionsMenu />
-      <Timeline />
+      {/* <Timeline /> */}
       {/* <VideoCursor/> */}
       {/* <WaveSurferComponent videoSelector="#video" />
           <AudioClassificationPlot /> */}
