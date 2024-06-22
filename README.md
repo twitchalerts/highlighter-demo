@@ -1,4 +1,5 @@
-# Video lab
+# Video Highlights
+This is a demo project uses AI audio classifictior to search highlights in the videos
 
 ## Run project locally
 
